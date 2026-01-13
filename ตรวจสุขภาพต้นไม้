@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP8266 IoT Dashboard</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; text-align: center; padding: 20px; }
+        .container { display: flex; justify-content: center; flex-wrap: wrap; gap: 20px; margin-top: 30px; }
+        .card { background: white; border-radius: 15px; padding: 20px; width: 200px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .value { font-size: 2.5rem; font-weight: bold; color: #2c3e50; }
+        .unit { font-size: 1rem; color: #7f8c8d; }
+        h1 { color: #2c3e50; }
+        .status { margin-top: 20px; font-size: 0.9rem; color: #95a5a6; }
+    </style>
+</head>
+<body>
+
+    <h1>🌿 Smart Farm Dashboard</h1>
+    
+    <div class="container">
+        <div class="card">
+            <h3>อุณหภูมิ</h3>
+            <div class="value" id="temp">--</div>
+            <div class="unit">°C</div>
+        </div>
+        <div class="card">
+            <h3>ความชื้นอากาศ</h3>
+            <div class="value" id="humi">--</div>
+            <div class="unit">%</div>
+        </div>
+        <div class="card">
+            <h3>ความชื้นในดิน</h3>
+            <div class="value" id="soil">--</div>
+            <div class="unit">%</div>
+        </div>
+    </div>
+
+    <div class="status">อัปเดตล่าสุด: <span id="time">กำลังโหลด...</span></div>
+
+    <script>
+        // เปลี่ยน URL นี้เป็น Web App URL จาก Google Apps Script ของคุณ
+        const SCRIPT_URL = "https://script.google.com/macros/s/XXXX/exec";
+
+        async function fetchData() {
+            try {
+                const response = await fetch(SCRIPT_URL + "?action=read");
+                const data = await response.json();
+                
+                document.getElementById('temp').innerText = data.temp;
+                document.getElementById('humi').innerText = data.humi;
+                document.getElementById('soil').innerText = data.soil;
+                document.getElementById('time').innerText = new Date().toLocaleTimeString();
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                document.getElementById('time').innerText = "เชื่อมต่อข้อมูลไม่ได้";
+            }
+        }
+
+        // ดึงข้อมูลทุกๆ 5 วินาที
+        setInterval(fetchData, 5000);
+        fetchData(); // ดึงทันทีที่เปิดหน้าเว็บ
+    </script>
+</body>
+</html>
