@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Smart Farm Dashboard</title>
 
-<!-- Google Font -->
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
 
 <style>
@@ -24,20 +23,17 @@ body {
     text-align: center;
 }
 
-/* Header */
 header {
     margin-bottom: 30px;
 }
 header h1 {
     color: var(--dark);
-    margin-bottom: 5px;
 }
 header p {
     color: var(--gray);
     font-size: 0.9rem;
 }
 
-/* Cards */
 .container {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -47,24 +43,14 @@ header p {
 }
 
 .card {
-    background: #ffffff;
+    background: #fff;
     border-radius: 18px;
     padding: 25px 20px;
     box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-    transition: transform 0.2s ease;
-}
-.card:hover {
-    transform: translateY(-5px);
 }
 
 .icon {
     font-size: 2.5rem;
-    margin-bottom: 10px;
-}
-
-.card h3 {
-    margin: 10px 0;
-    color: var(--dark);
 }
 
 .value {
@@ -72,23 +58,46 @@ header p {
     font-weight: 600;
     color: var(--blue);
 }
+
 .unit {
-    font-size: 1rem;
     color: var(--gray);
 }
 
-/* Status */
-.status {
+/* Buttons */
+.controls {
     margin-top: 30px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+button {
+    font-family: 'Prompt', sans-serif;
+    font-size: 1rem;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    box-shadow: 0 5px 12px rgba(0,0,0,0.15);
+}
+
+.btn-refresh {
+    background: var(--blue);
+    color: #fff;
+}
+
+.btn-reset {
+    background: #e74c3c;
+    color: #fff;
+}
+
+.status {
+    margin-top: 25px;
     font-size: 0.9rem;
     color: var(--gray);
 }
-.status span {
-    color: var(--green);
-    font-weight: 500;
-}
 
-/* Footer */
 footer {
     margin-top: 40px;
     font-size: 0.8rem;
@@ -101,7 +110,7 @@ footer {
 
 <header>
     <h1>🌿 Smart Farm Dashboard</h1>
-    <p>ระบบติดตามข้อมูลฟาร์มแบบเรียลไทม์ (ESP8266 IoT)</p>
+    <p>ควบคุมและดูข้อมูลฟาร์มผ่านมือถือ (GitHub Pages)</p>
 </header>
 
 <div class="container">
@@ -122,15 +131,20 @@ footer {
 
     <div class="card">
         <div class="icon">🌱</div>
-        <h3>ความชื้นในดิน</h3>
+        <h3>ความชื้นดิน</h3>
         <div class="value" id="soil">--</div>
         <div class="unit">%</div>
     </div>
 
 </div>
 
+<div class="controls">
+    <button class="btn-refresh" onclick="fetchData()">📡 ตรวจค่า</button>
+    <button class="btn-reset" onclick="resetDevice()">🔄 รีเซตอุปกรณ์</button>
+</div>
+
 <div class="status">
-    อัปเดตล่าสุด: <span id="time">กำลังโหลด...</span>
+    อัปเดตล่าสุด: <span id="time">--</span>
 </div>
 
 <footer>
@@ -152,7 +166,17 @@ async function fetchData() {
             new Date().toLocaleString("th-TH");
     } catch (e) {
         document.getElementById("time").innerText = "❌ ไม่สามารถเชื่อมต่อได้";
-        console.error(e);
+    }
+}
+
+async function resetDevice() {
+    if (!confirm("ต้องการรีเซตอุปกรณ์หรือไม่?")) return;
+
+    try {
+        await fetch(SCRIPT_URL + "?action=reset");
+        document.getElementById("time").innerText = "🔄 ส่งคำสั่งรีเซตแล้ว";
+    } catch (e) {
+        alert("รีเซตไม่สำเร็จ");
     }
 }
 
