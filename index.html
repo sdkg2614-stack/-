@@ -4,14 +4,13 @@
   <meta charset="UTF-8">
   <title>Smart Farm Dashboard</title>
 
-  <!-- Firebase v8 -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
   <style>
     body {
       margin: 0;
-      font-family: 'Segoe UI', sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: #e9f7f2;
       text-align: center;
     }
@@ -43,6 +42,11 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
+      transition: transform 0.3s;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
     }
 
     .icon {
@@ -79,6 +83,7 @@
       cursor: pointer;
       margin: 0 8px;
       color: white;
+      font-weight: bold;
     }
 
     .btn-check {
@@ -97,6 +102,7 @@
 
     footer {
       margin-top: 40px;
+      padding-bottom: 20px;
       font-size: 13px;
       color: #999;
     }
@@ -106,10 +112,9 @@
 <body>
 
   <h1>🌿 Smart Farm Dashboard</h1>
-  <div class="subtitle">ควบคุมและดูข้อมูลฟาร์มผ่านมือถือ (GitHub Pages)</div>
+  <div class="subtitle">ระบบติดตามข้อมูลฟาร์มอัจฉริยะ (Real-time)</div>
 
   <div class="cards">
-
     <div class="card">
       <div class="icon">🌡️</div>
       <div class="label">อุณหภูมิ</div>
@@ -130,65 +135,69 @@
       <div class="value"><span id="soil">--</span></div>
       <div class="unit">%</div>
     </div>
-
   </div>
 
-  <!-- ปุ่ม -->
   <div class="buttons">
-    <button class="btn-check" onclick="readData()">🧪 ตรวจวัดค่า</button>
-    <button class="btn-reset" onclick="resetDisplay()">🔄 รีเซตอุปกรณ์</button>
+    <button class="btn-check" onclick="listenData()">📡 เริ่มติดตามค่า</button>
+    <button class="btn-reset" onclick="resetDisplay()">🔄 รีเซตหน้าจอ</button>
   </div>
 
   <div class="status" id="status">
-    อัปเดตล่าสุด: ❌ ยังไม่ได้ตรวจวัด
+    สถานะ: ⏳ รอการเชื่อมต่อ...
   </div>
 
   <footer>
-    Smart Farm IoT © 2026
+    Smart Farm IoT © 2026 | Powered by Firebase
   </footer>
 
   <script>
-    // Firebase config (จากที่คุณให้มา)
-    var firebaseConfig = {
-      apiKey: "EQcGHt2Pf2euriwy0lhEOxxW58CAWwUjyFHbE9MX",
-      databaseURL: "https://ihkj-7f951-default-rtdb.firebaseio.com"
+    // แก้ไข Config เป็นตัวล่าสุดที่คุณให้มา
+    const firebaseConfig = {
+      apiKey: "AIzaSyBxVMySarMHuNuBNxDA4bDDfZH-wwZ7t-Q",
+      authDomain: "ihkj-7f951.firebaseapp.com",
+      databaseURL: "https://ihkj-7f951-default-rtdb.firebaseio.com",
+      projectId: "ihkj-7f951",
+      storageBucket: "ihkj-7f951.firebasestorage.app",
+      messagingSenderId: "963116839167",
+      appId: "1:963116839167:web:dd477626e182a33a245cca",
+      measurementId: "G-VD7YY4S02D"
     };
 
-    firebase.initializeApp(firebaseConfig);
-    var db = firebase.database();
+    // Initialize Firebase
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.database();
 
-    // อ่านค่าจาก Firebase (เมื่อกดปุ่ม)
-    function readData() {
-      db.ref("/").once("value")
-        .then(function(snapshot) {
-          var data = snapshot.val();
-
-          document.getElementById("temp").innerText =
-            data?.temperature ?? "--";
-
-          document.getElementById("humi").innerText =
-            data?.humidity ?? "--";
-
-          document.getElementById("soil").innerText =
-            data?.soil ?? "--";
-
-          document.getElementById("status").innerText =
-            "อัปเดตล่าสุด: ✅ อ่านข้อมูลแล้ว";
-        })
-        .catch(function() {
-          document.getElementById("status").innerText =
-            "อัปเดตล่าสุด: ❌ อ่านข้อมูลไม่สำเร็จ";
-        });
+    // ฟังก์ชันติดตามข้อมูลแบบ Real-time (ทำงานทันทีและอัปเดตเมื่อค่าเปลี่ยน)
+    function listenData() {
+      document.getElementById("status").innerText = "สถานะ: 🟢 กำลังติดตามข้อมูล...";
+      
+      db.ref("/").on("value", (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          // ใช้ชื่อตัวแปรตัวพิมพ์เล็กให้ตรงกับที่ส่งจาก Arduino
+          document.getElementById("temp").innerText = data.temperature !== undefined ? data.temperature : "--";
+          document.getElementById("humi").innerText = data.humidity !== undefined ? data.humidity : "--";
+          document.getElementById("soil").innerText = data.soil !== undefined ? data.soil : "--";
+          
+          const now = new Date();
+          document.getElementById("status").innerText = "อัปเดตล่าสุด: ✅ " + now.toLocaleTimeString();
+        }
+      }, (error) => {
+        console.error(error);
+        document.getElementById("status").innerText = "สถานะ: ❌ เชื่อมต่อล้มเหลว!";
+      });
     }
 
-    // รีเซตค่าแสดงผล (ไม่ยุ่ง Firebase)
+    // เริ่มทำงานทันทีที่โหลดหน้าเว็บ
+    listenData();
+
     function resetDisplay() {
       document.getElementById("temp").innerText = "--";
       document.getElementById("humi").innerText = "--";
       document.getElementById("soil").innerText = "--";
-
-      document.getElementById("status").innerText =
-        "อัปเดตล่าสุด: 🔄 รีเซตหน้าจอแล้ว";
+      document.getElementById("status").innerText = "สถานะ: 🔄 รีเซตการแสดงผลแล้ว";
     }
   </script>
 
