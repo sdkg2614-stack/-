@@ -4,33 +4,29 @@
   <meta charset="UTF-8">
   <title>Smart Farm Dashboard</title>
 
-  <!-- Firebase v8 -->
+  <!-- Firebase v8 (รองรับ GitHub Pages) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
   <style>
     body {
       margin: 0;
-      font-family: 'Segoe UI', sans-serif;
+      font-family: Arial, sans-serif;
       background: #e9f7f2;
       text-align: center;
     }
 
     h1 {
-      margin-top: 30px;
+      margin-top: 25px;
       color: #1b4332;
-    }
-
-    .subtitle {
-      color: #5f7161;
-      margin-bottom: 40px;
     }
 
     .cards {
       display: flex;
       justify-content: center;
-      gap: 30px;
+      gap: 25px;
       flex-wrap: wrap;
+      margin-top: 30px;
     }
 
     .card {
@@ -38,7 +34,7 @@
       width: 220px;
       height: 220px;
       border-radius: 16px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -46,67 +42,49 @@
     }
 
     .icon {
-      font-size: 48px;
-      margin-bottom: 10px;
+      font-size: 46px;
     }
 
     .label {
       font-size: 18px;
       font-weight: bold;
-      margin-bottom: 10px;
+      margin-top: 10px;
     }
 
     .value {
-      font-size: 36px;
+      font-size: 34px;
       font-weight: bold;
       color: #2d6a4f;
+      margin-top: 10px;
     }
 
     .unit {
-      font-size: 16px;
+      font-size: 15px;
       color: #555;
     }
 
-    .buttons {
-      margin-top: 30px;
-    }
-
     button {
+      margin-top: 25px;
+      padding: 12px 24px;
       border: none;
-      padding: 12px 22px;
-      font-size: 16px;
       border-radius: 25px;
-      cursor: pointer;
-      margin: 0 8px;
-      color: white;
-    }
-
-    .btn-check {
       background: #20c997;
-    }
-
-    .btn-reset {
-      background: #e74c3c;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
     }
 
     .status {
-      margin-top: 20px;
+      margin-top: 15px;
       font-size: 14px;
-      color: #666;
-    }
-
-    footer {
-      margin-top: 40px;
-      font-size: 13px;
-      color: #999;
+      color: #555;
     }
   </style>
 </head>
 
 <body>
 
-  <h1>🌿 Smart Farm Dashboard</h1>
-  <div class="subtitle">แสดงผลข้อมูลจาก ESP8266 ผ่าน Firebase</div>
+  <h1>🌿 Smart Farm</h1>
 
   <div class="cards">
 
@@ -133,23 +111,16 @@
 
   </div>
 
-  <div class="buttons">
-    <button class="btn-check" onclick="readData()">🧪 ตรวจวัดค่า</button>
-    <button class="btn-reset" onclick="resetDisplay()">🔄 รีเซตหน้าจอ</button>
-  </div>
+  <button onclick="readData()">🔄 อัปเดตค่า</button>
 
   <div class="status" id="status">
-    อัปเดตล่าสุด: ⏳ กำลังโหลดข้อมูล...
+    กำลังโหลดข้อมูล...
   </div>
 
-  <footer>
-    Smart Farm IoT © 2026
-  </footer>
-
   <script>
-    // 🔑 Firebase Web Config (ใส่ apiKey จริงของคุณ)
+    // 🔑 Firebase Web Config (ของคุณ)
     var firebaseConfig = {
-      apiKey: "AIzaSyXXXXXXXXXXXXXXXXXXXX",
+      apiKey: "AIzaSyBxVMySarMHuNuBNxDA4bDDfZH-wwZ7t-Q",
       databaseURL: "https://ihkj-7f951-default-rtdb.firebaseio.com"
     };
 
@@ -163,39 +134,25 @@
 
           if (!data) {
             document.getElementById("status").innerText =
-              "อัปเดตล่าสุด: ❌ ไม่พบข้อมูล";
+              "❌ ไม่พบข้อมูลใน Firebase";
             return;
           }
 
-          document.getElementById("temp").innerText =
-            data.temperature ?? "--";
-
-          document.getElementById("humi").innerText =
-            data.humidity ?? "--";
-
-          document.getElementById("soil").innerText =
-            data.soil ?? "--";
+          document.getElementById("temp").innerText = data.temperature;
+          document.getElementById("humi").innerText = data.humidity;
+          document.getElementById("soil").innerText = data.soil;
 
           document.getElementById("status").innerText =
-            "อัปเดตล่าสุด: ✅ โหลดข้อมูลสำเร็จ";
+            "✅ อัปเดตล่าสุดเรียบร้อย";
         })
         .catch(function(error) {
           console.error(error);
           document.getElementById("status").innerText =
-            "อัปเดตล่าสุด: ❌ อ่านข้อมูลล้มเหลว";
+            "❌ อ่านข้อมูลล้มเหลว";
         });
     }
 
-    function resetDisplay() {
-      document.getElementById("temp").innerText = "--";
-      document.getElementById("humi").innerText = "--";
-      document.getElementById("soil").innerText = "--";
-
-      document.getElementById("status").innerText =
-        "อัปเดตล่าสุด: 🔄 รีเซตหน้าจอแล้ว";
-    }
-
-    // โหลดหน้าเว็บแล้วอ่านข้อมูลอัตโนมัติ
+    // โหลดหน้าเว็บแล้วอ่านค่าอัตโนมัติ
     window.onload = readData;
   </script>
 
