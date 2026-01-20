@@ -106,7 +106,7 @@
 <body>
 
   <h1>🌿 Smart Farm Dashboard</h1>
-  <div class="subtitle">ควบคุมและดูข้อมูลฟาร์มผ่านมือถือ (GitHub Pages)</div>
+  <div class="subtitle">แสดงผลข้อมูลจาก ESP8266 ผ่าน Firebase</div>
 
   <div class="cards">
 
@@ -135,11 +135,11 @@
 
   <div class="buttons">
     <button class="btn-check" onclick="readData()">🧪 ตรวจวัดค่า</button>
-    <button class="btn-reset" onclick="resetDisplay()">🔄 รีเซตอุปกรณ์</button>
+    <button class="btn-reset" onclick="resetDisplay()">🔄 รีเซตหน้าจอ</button>
   </div>
 
   <div class="status" id="status">
-    อัปเดตล่าสุด: ❌ ยังไม่ได้ตรวจวัด
+    อัปเดตล่าสุด: ⏳ กำลังโหลดข้อมูล...
   </div>
 
   <footer>
@@ -147,21 +147,19 @@
   </footer>
 
   <script>
-    // Firebase config (ของคุณ)
+    // 🔑 Firebase Web Config (ใส่ apiKey จริงของคุณ)
     var firebaseConfig = {
-      apiKey: "AIzaSyBxVMySarMHuNuBNxDA4bDDfZH-wwZ7t-Q",
-      databaseURL: "https://ihkj-7f951-default-rtdb.firebaseio.com/"
+      apiKey: "AIzaSyXXXXXXXXXXXXXXXXXXXX",
+      databaseURL: "https://ihkj-7f951-default-rtdb.firebaseio.com"
     };
 
     firebase.initializeApp(firebaseConfig);
     var db = firebase.database();
 
-    // อ่านข้อมูลจาก /sensor (สำคัญมาก)
     function readData() {
       db.ref("/sensor").once("value")
         .then(function(snapshot) {
           var data = snapshot.val();
-          console.log("Firebase:", data);
 
           if (!data) {
             document.getElementById("status").innerText =
@@ -179,7 +177,7 @@
             data.soil ?? "--";
 
           document.getElementById("status").innerText =
-            "อัปเดตล่าสุด: ✅ อ่านข้อมูลแล้ว";
+            "อัปเดตล่าสุด: ✅ โหลดข้อมูลสำเร็จ";
         })
         .catch(function(error) {
           console.error(error);
@@ -197,7 +195,7 @@
         "อัปเดตล่าสุด: 🔄 รีเซตหน้าจอแล้ว";
     }
 
-    // โหลดหน้าเว็บแล้วอ่านค่าอัตโนมัติ
+    // โหลดหน้าเว็บแล้วอ่านข้อมูลอัตโนมัติ
     window.onload = readData;
   </script>
 
