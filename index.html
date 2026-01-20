@@ -67,8 +67,30 @@
       color: #555;
     }
 
+    .buttons {
+      margin-top: 30px;
+    }
+
+    button {
+      border: none;
+      padding: 12px 22px;
+      font-size: 16px;
+      border-radius: 25px;
+      cursor: pointer;
+      margin: 0 8px;
+      color: white;
+    }
+
+    .btn-check {
+      background: #20c997;
+    }
+
+    .btn-reset {
+      background: #e74c3c;
+    }
+
     .status {
-      margin-top: 25px;
+      margin-top: 20px;
       font-size: 14px;
       color: #666;
     }
@@ -111,8 +133,14 @@
 
   </div>
 
+  <!-- ปุ่ม -->
+  <div class="buttons">
+    <button class="btn-check" onclick="readData()">🧪 ตรวจวัดค่า</button>
+    <button class="btn-reset" onclick="resetDisplay()">🔄 รีเซตอุปกรณ์</button>
+  </div>
+
   <div class="status" id="status">
-    อัปเดตล่าสุด: ❌ ไม่สามารถเชื่อมต่อได้
+    อัปเดตล่าสุด: ❌ ยังไม่ได้ตรวจวัด
   </div>
 
   <footer>
@@ -129,27 +157,39 @@
     firebase.initializeApp(firebaseConfig);
     var db = firebase.database();
 
-    // อ่านข้อมูลแบบ real-time
-    db.ref("/").on("value", function(snapshot) {
-      var data = snapshot.val();
+    // อ่านค่าจาก Firebase (เมื่อกดปุ่ม)
+    function readData() {
+      db.ref("/").once("value")
+        .then(function(snapshot) {
+          var data = snapshot.val();
 
-      if (data) {
-        document.getElementById("temp").innerText =
-          data.temperature ?? "--";
+          document.getElementById("temp").innerText =
+            data?.temperature ?? "--";
 
-        document.getElementById("humi").innerText =
-          data.humidity ?? "--";
+          document.getElementById("humi").innerText =
+            data?.humidity ?? "--";
 
-        document.getElementById("soil").innerText =
-          data.soil ?? "--";
+          document.getElementById("soil").innerText =
+            data?.soil ?? "--";
 
-        document.getElementById("status").innerText =
-          "อัปเดตล่าสุด: ✅ เชื่อมต่อแล้ว";
-      }
-    }, function(error) {
+          document.getElementById("status").innerText =
+            "อัปเดตล่าสุด: ✅ อ่านข้อมูลแล้ว";
+        })
+        .catch(function() {
+          document.getElementById("status").innerText =
+            "อัปเดตล่าสุด: ❌ อ่านข้อมูลไม่สำเร็จ";
+        });
+    }
+
+    // รีเซตค่าแสดงผล (ไม่ยุ่ง Firebase)
+    function resetDisplay() {
+      document.getElementById("temp").innerText = "--";
+      document.getElementById("humi").innerText = "--";
+      document.getElementById("soil").innerText = "--";
+
       document.getElementById("status").innerText =
-        "อัปเดตล่าสุด: ❌ ไม่สามารถเชื่อมต่อได้";
-    });
+        "อัปเดตล่าสุด: 🔄 รีเซตหน้าจอแล้ว";
+    }
   </script>
 
 </body>
